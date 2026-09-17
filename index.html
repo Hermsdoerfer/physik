@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Elektromagnetischer Schwingkreis</title>
 <style>
   :root{
@@ -49,31 +50,31 @@
   .reihe:last-child{margin-bottom:0;}
   .etikett{font-size:14px; color:var(--grau); margin-right:2px;}
   button{
-    font-family:inherit; font-size:15px; padding:6px 14px; cursor:pointer;
+    font-family:inherit; font-size:17px; padding:11px 18px; cursor:pointer;
+    min-height:46px; touch-action:manipulation;
     background:#fff; color:var(--akzent); border:1px solid var(--akzent);
   }
-  button:hover{background:var(--flaeche);}
+  @media (hover:hover){ button:hover{background:var(--flaeche);} }
+  button:active{background:var(--akzent); color:#fff;}
   button.an{background:var(--akzent); color:#fff;}
   button:focus-visible, input:focus-visible{outline:2px solid var(--akzent); outline-offset:2px;}
-  .haupt{font-weight:700; min-width:104px;}
-
-  .klapp{margin-top:16px;}
-  .klapptitel{
-    width:100%; text-align:left; font-size:16px; font-weight:700; padding:8px 12px;
-    border:1px solid var(--linie); color:var(--text); background:var(--flaeche);
+  .haupt{font-weight:700; min-width:132px;}
+  .pult{position:sticky; bottom:0; background:#fff; z-index:5;}
+  .schalter{display:flex; align-items:center; gap:10px; font-size:17px; padding:8px 4px; touch-action:manipulation;}
+  .schalter input[type=checkbox]{width:26px; height:26px; accent-color:var(--akzent);}
+  @media (max-width:1180px){
+    .buehne{grid-template-columns:1fr;}
+    .feld canvas{max-width:620px; margin:0 auto;}
+    body{padding:14px 14px 30px;}
+    h1{font-size:24px;}
+    .phase{font-size:18px; min-height:96px;}
+    .marken{font-size:16px;}
   }
-  .klappinhalt{border:1px solid var(--linie); border-top:none; padding:12px 14px 14px; display:none;}
-  .regler{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px 22px;}
-  .regler label{display:block; font-size:14px; margin-bottom:2px;}
-  .regler input[type=range]{width:100%; accent-color:var(--akzent);}
-  .wert{font-variant-numeric:tabular-nums; font-weight:700; color:var(--akzent);}
-  table{border-collapse:collapse; width:100%; font-size:14px; margin-top:10px;}
-  th,td{border:1px solid var(--linie); padding:3px 6px; text-align:right; font-variant-numeric:tabular-nums;}
-  th{background:var(--flaeche); text-align:center; font-weight:700;}
-  td:first-child, th:first-child{text-align:center;}
-  .anzeige{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:4px 18px; font-size:15px; margin-top:10px;}
-  .anzeige span{font-variant-numeric:tabular-nums; font-weight:700;}
-  .hinweis{font-size:13px; color:var(--grau); margin-top:8px;}
+  @media (max-width:1180px) and (orientation:landscape){
+    .buehne{grid-template-columns:1.3fr 1fr;}
+    .feld canvas{max-width:none;}
+  }
+
   footer{margin-top:24px; border-top:1px solid var(--linie); padding-top:8px; font-size:13px; color:var(--grau);}
 </style>
 </head>
@@ -81,19 +82,19 @@
 
 <header>
   <h1>Elektromagnetischer Schwingkreis</h1>
-  <div class="kopf">Physik Grundkurs Jahrgangsstufe 12 &nbsp;|&nbsp; LB 1: Mechanische und elektromagnetische Schwingungen und Wellen &nbsp;|&nbsp; Einsatzform: Partnerarbeit am Gerät, etwa 15 Minuten</div>
+  <div class="kopf">Physik Grundkurs Jahrgangsstufe 12 &nbsp;|&nbsp; LB 1: Mechanische und elektromagnetische Schwingungen und Wellen &nbsp;|&nbsp; Einsatzform: Partnerarbeit am Tablet, etwa 15 Minuten</div>
 </header>
 
 <div class="buehne">
   <div class="feld">
     <h2>Schwingkreis</h2>
     <canvas id="cSchaltung" width="760" height="620"></canvas>
-    <div class="bildtext">Blau: Ladung und elektrisches Feld des Kondensators. Braun: Stromstärke und Magnetfeld der Spule.</div>
+    <div class="bildtext">Blau: Ladung und elektrisches Feld des Kondensators. Braun: Stromstärke und die Feldlinien des Magnetfeldes der Spule.</div>
   </div>
   <div class="feld">
-    <h2>Federschwinger zum Vergleich</h2>
+    <h2>Waagerechter Federschwinger zum Vergleich</h2>
     <canvas id="cFeder" width="560" height="620"></canvas>
-    <div class="bildtext">Die Auslenkung y verhält sich wie die Ladung q, die Geschwindigkeit v wie die Stromstärke i.</div>
+    <div class="bildtext">Die Auslenkung y verhält sich wie die Ladung q, die Geschwindigkeit v wie die Stromstärke i. In der Gleichgewichtslage ist die Feder entspannt.</div>
   </div>
 </div>
 
@@ -106,7 +107,7 @@
   </div>
   <div class="marken">
     <div class="marke"><span class="klecks" style="background:#1F4E79"></span>
-      <span>elektrisches Feld des Kondensators <b id="wEl">100 %</b><small>entspricht der Spannenergie der Feder</small></span></div>
+      <span>elektrisches Feld des Kondensators <b id="wEl">100 %</b><small>entspricht der Spannenergie der Feder (potenzielle Energie)</small></span></div>
     <div class="marke"><span class="klecks" style="background:#A34700"></span>
       <span>magnetisches Feld der Spule <b id="wMagn">0 %</b><small>entspricht der Bewegungsenergie des Körpers</small></span></div>
     <div class="marke"><span class="klecks" style="background:#8C8C8C"></span>
@@ -126,64 +127,18 @@
   </div>
   <div class="reihe">
     <span class="etikett">Zeitpunkt anspringen</span>
-    <button class="sprung" data-k="0">1 &nbsp; t = 0</button>
-    <button class="sprung" data-k="1">2 &nbsp; t = T/4</button>
-    <button class="sprung" data-k="2">3 &nbsp; t = T/2</button>
-    <button class="sprung" data-k="3">4 &nbsp; t = 3T/4</button>
-    <label style="font-size:15px; margin-left:14px; display:flex; gap:6px; align-items:center;">
-      <input type="checkbox" id="sDaempfung"> Dämpfung einschalten
+    <button class="sprung" data-k="0">t = 0</button>
+    <button class="sprung" data-k="1">t = T/4</button>
+    <button class="sprung" data-k="2">t = T/2</button>
+    <button class="sprung" data-k="3">t = 3T/4</button>
+    <label class="schalter" style="margin-left:10px;">
+      <input type="checkbox" id="sDaempfung"> Dämpfung
     </label>
   </div>
 </div>
 
-<div class="klapp">
-  <button class="klapptitel" id="tDiagramm">Zusatz 1: Spannung und Stromstärke im Zeitdiagramm</button>
-  <div class="klappinhalt" id="iDiagramm">
-    <canvas id="cGraph" width="1240" height="420"></canvas>
-    <div class="bildtext">Blau: Spannung u am Kondensator. Braun: Stromstärke i. Vergleichen Sie mit Abbildung 2 im Heftereintrag.</div>
-  </div>
-</div>
-
-<div class="klapp">
-  <button class="klapptitel" id="tMessung">Zusatz 2: Messreihe zur Periodendauer (Aufgabe A4)</button>
-  <div class="klappinhalt" id="iMessung">
-    <div class="regler">
-      <div>
-        <label for="rL">Induktivität <i>L</i> = <span class="wert" id="vL">10,0</span> mH</label>
-        <input type="range" id="rL" min="1" max="50" step="0.5" value="10">
-      </div>
-      <div>
-        <label for="rC">Kapazität <i>C</i> = <span class="wert" id="vC">10,0</span> &micro;F</label>
-        <input type="range" id="rC" min="1" max="50" step="0.5" value="10">
-      </div>
-      <div>
-        <label for="rR">Widerstand <i>R</i> = <span class="wert" id="vR">0</span> &Omega;</label>
-        <input type="range" id="rR" min="0" max="120" step="1" value="0">
-      </div>
-    </div>
-    <div class="anzeige">
-      <div>T berechnet = <span id="aTth">1,99</span> ms</div>
-      <div>T gemessen = <span id="aTmess">&ndash;</span> ms</div>
-      <div>f = <span id="aF">503</span> Hz</div>
-      <div>u = <span id="aU">5,00</span> V</div>
-      <div>i = <span id="aI">0</span> mA</div>
-    </div>
-    <div class="reihe" style="margin-top:12px;">
-      <button id="bMess">Messwert übernehmen</button>
-      <button id="bLeeren">Tabelle leeren</button>
-    </div>
-    <table id="tabelle">
-      <thead>
-        <tr><th>Nr.</th><th>L in mH</th><th>C in &micro;F</th><th>R in &Omega;</th><th>T gemessen in ms</th><th>T berechnet in ms</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="hinweis">Die Periodendauer wird aus dem Abstand zweier gleichsinniger Nulldurchgänge der Spannung bestimmt. Stellen Sie für die Messreihe das Tempo auf „zügig“ und lassen Sie nach jeder Änderung zwei bis drei Schwingungen laufen.</div>
-  </div>
-</div>
-
 <footer>
-  Offline lauffähige Einzeldatei, keine Internetverbindung erforderlich. Verteilung über LernSax möglich.
+  Offline lauffähige Einzeldatei für das Tablet, keine Internetverbindung erforderlich. Verteilung über LernSax.
 </footer>
 
 <script>
@@ -198,7 +153,7 @@
     Tmess: null
   };
 
-  var verlauf = [], nulldurchgaenge = [], messreihe = [];
+  var nulldurchgaenge = [];
   var FARBE_EL = "#1F4E79", FARBE_MAGN = "#A34700", FARBE_DRAHT = "#333333", FARBE_GRAU = "#8A8A8A";
 
   function el(id){ return document.getElementById(id); }
@@ -214,7 +169,7 @@
     Z.q = q0()*Math.cos(w);
     Z.i = -q0()*omega()*Math.sin(w);
     Z.t = k*Tthomson()/4;
-    verlauf = []; nulldurchgaenge = []; Z.Tmess = null;
+    nulldurchgaenge = []; Z.Tmess = null;
   }
   function vonVorn(){ setzePhase(0); Z.t = 0; }
 
@@ -244,9 +199,6 @@
         }
       }
     }
-    verlauf.push({t:Z.t, u:Z.q/Z.C, i:Z.i});
-    var fenster = 2.4*Tthomson();
-    while(verlauf.length && Z.t - verlauf[0].t > fenster) verlauf.shift();
   }
 
   function linie(c,x1,y1,x2,y2,f,d){ c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.strokeStyle=f; c.lineWidth=d||3; c.stroke(); }
@@ -305,14 +257,24 @@
     c.strokeStyle=FARBE_DRAHT; c.lineWidth=3; c.stroke();
 
     if(Math.abs(iRel)>0.03){
-      var nB = Math.max(1,Math.round(Math.abs(iRel)*4));
+      var nB = Math.max(1,Math.min(3,Math.round(Math.abs(iRel)*3)));
+      var runter = iRel > 0;
       for(var b=0;b<nB;b++){
-        var xb = xR + 24 + b*13;
-        if(iRel>0) pfeil(c,xb,112,xb,208,FARBE_MAGN,1.8,7);
-        else pfeil(c,xb,208,xb,112,FARBE_MAGN,1.8,7);
+        var rx = 16 + b*11, ry = 52 + b*13;
+        c.beginPath();
+        if(c.ellipse) c.ellipse(xR, 160, rx, ry, 0, 0, 2*Math.PI);
+        else { c.moveTo(xR-rx,160); c.lineTo(xR-rx,160-ry); c.lineTo(xR+rx,160-ry); c.lineTo(xR+rx,160+ry); c.lineTo(xR-rx,160+ry); c.closePath(); }
+        c.strokeStyle=FARBE_MAGN; c.lineWidth=1.6; c.stroke();
+        if(runter){
+          pfeil(c,xR,160-ry-8,xR,160-ry+8,FARBE_MAGN,1.6,7);
+          pfeil(c,xR,160+ry-8,xR,160+ry+8,FARBE_MAGN,1.6,7);
+        } else {
+          pfeil(c,xR,160-ry+8,xR,160-ry-8,FARBE_MAGN,1.6,7);
+          pfeil(c,xR,160+ry+8,xR,160+ry-8,FARBE_MAGN,1.6,7);
+        }
       }
       c.font="italic 15px Calibri, sans-serif"; c.fillStyle=FARBE_MAGN; c.textAlign="left"; c.textBaseline="middle";
-      c.fillText("B", xR+24+nB*13+4, 160);
+      c.fillText("B", xR + 16 + (nB-1)*11 + 7, 118);
       var d = iRel>0 ? 1 : -1, lang = 26 + 30*Math.abs(iRel), mo = (xL+xR)/2;
       if(d>0) pfeil(c,mo-lang/2,yO,mo+lang/2,yO,FARBE_MAGN,4,12);
       else pfeil(c,mo+lang/2,yO,mo-lang/2,yO,FARBE_MAGN,4,12);
@@ -347,83 +309,72 @@
     c.clearRect(0,0,280,310);
     var uRel = Math.max(-1,Math.min(1,(Z.q/Z.C)/Z.U0));
     var vRel = Math.max(-1,Math.min(1, Z.i/iMax()));
-    var xm = 132, yD = 40, yGl = 162, A = 74;
-    var yM = yGl - uRel*A;
+    var yM = 118, xGl = 152, A = 58, xW = 26;
+    var xm = xGl + uRel*A;
 
-    linie(c,xm-74,yD,xm+74,yD,FARBE_DRAHT,3);
-    for(var k=0;k<8;k++) linie(c,xm-70+k*20,yD,xm-81+k*20,yD-11,FARBE_GRAU,1.5);
+    // Wand mit Schraffur und Unterlage
+    linie(c,xW,yM-62,xW,yM+34,FARBE_DRAHT,3);
+    for(var k=0;k<6;k++) linie(c,xW-11,yM-58+k*16,xW,yM-69+k*16,FARBE_GRAU,1.5);
+    linie(c,xW,yM+24,264,yM+24,FARBE_GRAU,1.5);
 
-    var n=10, ob=yD, un=yM-19, dy=(un-ob)/n;
-    c.beginPath(); c.moveTo(xm,ob);
-    for(var s=0;s<n;s++) c.lineTo(xm + (s%2===0?16:-16), ob + dy*(s+0.5));
-    c.lineTo(xm,un);
+    // Feder
+    var nF=12, xa=xW, xb=xm-21, dx=(xb-xa)/nF;
+    c.beginPath(); c.moveTo(xa,yM);
+    for(var f=0;f<nF;f++) c.lineTo(xa+dx*(f+0.5), yM + (f%2===0?-12:12));
+    c.lineTo(xb,yM);
     c.strokeStyle=FARBE_DRAHT; c.lineWidth=2.2; c.stroke();
 
+    // Gleichgewichtslage
+    c.save(); c.setLineDash([5,5]);
+    linie(c,xGl,yM-70,xGl,yM+34,FARBE_GRAU,1.5);
+    c.restore();
+    c.font="12px Calibri, sans-serif"; c.textAlign="center"; c.textBaseline="top"; c.fillStyle=FARBE_GRAU;
+    c.fillText("Gleichgewichtslage", xGl, yM+38);
+    c.fillText("Feder entspannt, y = 0", xGl, yM+53);
+
+    // Koerper
     c.fillStyle="#ffffff"; c.strokeStyle=FARBE_DRAHT; c.lineWidth=2.5;
-    c.fillRect(xm-27,yM-19,54,38); c.strokeRect(xm-27,yM-19,54,38);
+    c.fillRect(xm-21,yM-21,42,42); c.strokeRect(xm-21,yM-21,42,42);
     c.font="italic 17px Calibri, sans-serif"; c.fillStyle=FARBE_DRAHT;
     c.textAlign="center"; c.textBaseline="middle"; c.fillText("m", xm, yM);
 
-    c.save(); c.setLineDash([5,5]);
-    linie(c,xm-124,yGl,xm+112,yGl,FARBE_GRAU,1.5);
-    c.restore();
-    c.font="11px Calibri, sans-serif"; c.textAlign="left"; c.textBaseline="top"; c.fillStyle=FARBE_GRAU;
-    c.fillText("Gleichgewichtslage", 6, yGl+6);
-
-    c.textBaseline="middle";
+    // Auslenkung y
     if(Math.abs(uRel)>0.04){
-      pfeil(c,xm-48,yGl,xm-48,yM,FARBE_EL,2.2,8);
-      c.font="italic 16px Calibri, sans-serif"; c.fillStyle=FARBE_EL; c.textAlign="right";
-      c.fillText("y", xm-54, (yGl+yM)/2);
+      pfeil(c,xGl,yM-58,xm,yM-58,FARBE_EL,2.2,8);
+      c.font="italic 16px Calibri, sans-serif"; c.fillStyle=FARBE_EL; c.textBaseline="bottom";
+      c.fillText("y", (xGl+xm)/2, yM-62);
+    } else {
+      c.font="14px Calibri, sans-serif"; c.fillStyle=FARBE_GRAU; c.textBaseline="bottom";
+      c.fillText("y = 0", xGl, yM-62);
     }
+
+    // Geschwindigkeit v
     if(Math.abs(vRel)>0.05){
-      var lv = 46*Math.abs(vRel), spitze = yM + (vRel>0 ? -lv : lv);
-      pfeil(c, xm+48, yM, xm+48, spitze, FARBE_MAGN, 2.2, 8);
-      c.font="italic 16px Calibri, sans-serif"; c.fillStyle=FARBE_MAGN; c.textAlign="left";
-      c.fillText("v", xm+54, spitze);
+      var lv = 38*Math.abs(vRel), spitze = xm + (vRel>0 ? lv : -lv);
+      pfeil(c, xm, yM-34, spitze, yM-34, FARBE_MAGN, 2.2, 8);
+      c.font="italic 16px Calibri, sans-serif"; c.fillStyle=FARBE_MAGN; c.textBaseline="bottom";
+      c.fillText("v", spitze, yM-38);
+    } else {
+      c.font="14px Calibri, sans-serif"; c.fillStyle=FARBE_GRAU; c.textBaseline="bottom";
+      c.fillText("v = 0", xm, yM-38);
     }
 
     c.font="14px Calibri, sans-serif"; c.fillStyle=FARBE_GRAU; c.textAlign="center"; c.textBaseline="top";
-    c.fillText("m übernimmt die Rolle von L", xm, 266);
-    c.fillText("D übernimmt die Rolle von 1/C", xm, 285);
-    c.setTransform(1,0,0,1,0,0);
-  }
-
-  function zeichneGraph(){
-    if(el("iDiagramm").style.display !== "block") return;
-    var c = el("cGraph").getContext("2d");
-    c.setTransform(2,0,0,2,0,0);
-    c.clearRect(0,0,620,210);
-    var x0=40, x1=606, y0=14, y1=196, ym=(y0+y1)/2;
-    linie(c,x0,ym,x1,ym,FARBE_GRAU,1.4);
-    linie(c,x0,y0,x0,y1,FARBE_GRAU,1.4);
-    c.font="13px Calibri, sans-serif"; c.fillStyle=FARBE_GRAU;
-    c.textAlign="left"; c.textBaseline="top"; c.fillText("t", x1-14, ym+6);
-    if(verlauf.length < 2){ c.setTransform(1,0,0,1,0,0); return; }
-
-    var tA=verlauf[0].t, tB=verlauf[verlauf.length-1].t, sp=Math.max(1e-9,tB-tA);
-    var uS=Z.U0*1.08, iS=iMax()*1.08;
-    function px(t){ return x0 + (t-tA)/sp*(x1-x0); }
-    function kurve(f, farbe){
-      c.beginPath();
-      for(var k=0;k<verlauf.length;k++){
-        var p=verlauf[k], x=px(p.t), y=f(p);
-        if(k===0) c.moveTo(x,y); else c.lineTo(x,y);
-      }
-      c.strokeStyle=farbe; c.lineWidth=2.4; c.stroke();
-    }
-    kurve(function(p){ return ym - (-p.i)/iS*(ym-y0-6); }, FARBE_MAGN);
-    kurve(function(p){ return ym - p.u/uS*(ym-y0-6); }, FARBE_EL);
+    c.fillText("y entspricht der Ladung q", xGl, 224);
+    c.fillText("v entspricht der Stromstärke i", xGl, 243);
+    c.fillText("m übernimmt die Rolle von L", xGl, 262);
+    c.fillText("D übernimmt die Rolle von 1/C", xGl, 281);
     c.setTransform(1,0,0,1,0,0);
   }
 
   function phasenText(){
-    var uRel = (Z.q/Z.C)/Z.U0, iRel = Z.i/iMax();
-    var ladend = uRel*iRel > 0;
-    if(Math.abs(iRel) < 0.16 && Math.abs(uRel) > 0.4)
+    var Eel = Z.q*Z.q/(2*Z.C), Emagn = Z.L*Z.i*Z.i/2, Eg = Eel + Emagn;
+    var antEl = Eg > 0 ? Eel/Eg : 1;
+    var ladend = Z.q*Z.i > 0;
+    if(antEl > 0.93)
       return "Umkehrpunkt: Der Kondensator ist maximal geladen, es fließt kein Strom. Die gesamte Energie steckt im elektrischen Feld. "
            + "Beim Federschwinger entspricht das dem Umkehrpunkt, in dem der Körper einen Augenblick ruht.";
-    if(Math.abs(uRel) < 0.16 && Math.abs(iRel) > 0.4)
+    if(antEl < 0.07)
       return "Der Kondensator ist entladen, die Stromstärke ist am größten. Die gesamte Energie steckt jetzt im Magnetfeld der Spule und hält den Strom aufrecht. "
            + "Beim Federschwinger entspricht das dem Durchgang durch die Gleichgewichtslage mit größter Geschwindigkeit.";
     if(ladend)
@@ -445,14 +396,9 @@
     el("wTh").textContent = pTh.toFixed(0)+" %";
     el("phasentext").textContent = phasenText();
 
-    el("aU").textContent = (Z.q/Z.C).toFixed(2).replace(".",",");
-    el("aI").textContent = (iAnz()*1000).toFixed(0);
-    el("aTth").textContent = (Tthomson()*1000).toFixed(2).replace(".",",");
-    el("aTmess").textContent = Z.Tmess ? (Z.Tmess*1000).toFixed(2).replace(".",",") : "\u2013";
-    el("aF").textContent = (1/Tthomson()).toFixed(0);
   }
 
-  function zeichneAlles(){ zeichneSchaltung(); zeichneFeder(); zeichneGraph(); aktualisiereAnzeige(); }
+  function zeichneAlles(){ zeichneSchaltung(); zeichneFeder(); aktualisiereAnzeige(); }
 
   var letzteZeit = null;
   function schleife(zeit){
@@ -488,50 +434,7 @@
   });
   el("sDaempfung").addEventListener("change", function(){
     Z.R = this.checked ? 8 : 0;
-    el("rR").value = Z.R; el("vR").textContent = Z.R.toFixed(0);
   });
-
-  function klappe(knopf, feld){
-    el(knopf).addEventListener("click", function(){
-      var f = el(feld);
-      f.style.display = (f.style.display === "block") ? "none" : "block";
-    });
-  }
-  klappe("tDiagramm","iDiagramm");
-  klappe("tMessung","iMessung");
-
-  function bindeRegler(id, anzeige, faktor, ziel, nk){
-    var r = el(id);
-    r.addEventListener("input", function(){
-      var v = parseFloat(r.value);
-      el(anzeige).textContent = nk===0 ? v.toFixed(0) : v.toFixed(nk).replace(".",",");
-      Z[ziel] = v*faktor;
-      if(ziel === "R"){ el("sDaempfung").checked = Z.R > 0; }
-      else { vonVorn(); }
-      nulldurchgaenge = []; Z.Tmess = null; verlauf = [];
-    });
-  }
-  bindeRegler("rL","vL",1e-3,"L",1);
-  bindeRegler("rC","vC",1e-6,"C",1);
-  bindeRegler("rR","vR",1,"R",0);
-
-  el("bMess").addEventListener("click", function(){
-    messreihe.push({ L:Z.L*1000, C:Z.C*1e6, R:Z.R, Tm: Z.Tmess ? Z.Tmess*1000 : null, Tt: Tthomson()*1000 });
-    zeichneTabelle();
-  });
-  el("bLeeren").addEventListener("click", function(){ messreihe = []; zeichneTabelle(); });
-
-  function zeichneTabelle(){
-    var tb = el("tabelle").querySelector("tbody");
-    tb.innerHTML = "";
-    messreihe.forEach(function(m,k){
-      var tr = document.createElement("tr");
-      [k+1, m.L.toFixed(1).replace(".",","), m.C.toFixed(1).replace(".",","), m.R.toFixed(0),
-       m.Tm ? m.Tm.toFixed(2).replace(".",",") : "\u2013", m.Tt.toFixed(2).replace(".",",")
-      ].forEach(function(w){ var td=document.createElement("td"); td.textContent=w; tr.appendChild(td); });
-      tb.appendChild(tr);
-    });
-  }
 
   vonVorn();
   requestAnimationFrame(schleife);
